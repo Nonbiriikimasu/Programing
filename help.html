@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIキーについて</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            color: #1a73e8;
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .icon { color: #1a73e8; }
+        
+        .box {
+            background: #e8f0fe;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #174ea6;
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #d93025;
+        }
+
+        .step {
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 4px solid #ddd;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            background: #1a73e8;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+
+        .note {
+            font-size: 0.9rem;
+            color: #5f6368;
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔑 Google Gemini APIキーについて</h1>
+
+    <h2><span class="material-icons-round icon">help</span> なぜAPIキーが必要なのですか？</h2>
+    <p>
+        これらのアプリには、AI（人工知能）の頭脳そのものは入っていません。
+        あなたの代わりに問題を考えたり、プランを作成したりするために、インターネットを通じて<strong>GoogleのAIサーバー（Gemini）</strong>に接続する必要があります。
+    </p>
+    <div class="box">
+        <strong>APIキーは、GoogleのAIサーバーを利用するための「通行手形」のようなものです。</strong>
+    </div>
+    <p>
+        APIキーを入力することで、このアプリからGoogleのAIに「問題を考えて！」「採点して！」とお願いできるようになります。<br>
+        ※ 入力されたキーはあなたのブラウザ内でのみ使用され、アプリの開発者（私）に送信されることはありませんのでご安心ください。
+    </p>
+
+    <h2><span class="material-icons-round icon">vpn_key</span> APIキーの取得方法 (無料)</h2>
+    <p>以下の手順で、Googleから無料でキーを取得できます。</p>
+
+    <div class="step">
+        <h3>1. Google AI Studioにアクセス</h3>
+        <p>Googleアカウント（Gmailなど）でログインしてください。</p>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn">
+            Google AI Studioを開く <span class="material-icons-round" style="margin-left:5px;">open_in_new</span>
+        </a>
+    </div>
+
+    <div class="step">
+        <h3>2. キーを作成する</h3>
+        <p>
+            画面左上の <strong>[Create API key]</strong> ボタンをクリックします。<br>
+            「Create API key in new project」を選択すると、すぐにキーが発行されます。
+        </p>
+    </div>
+
+    <div class="step">
+        <h3>3. コピーして貼り付け</h3>
+        <p>
+            生成された <code>Alza...</code> から始まる長い文字列があなたのAPIキーです。<br>
+            これをコピーして、アプリの入力欄に貼り付けてください。
+        </p>
+    </div>
+
+    <div class="note">
+        <strong>⚠️ 注意事項</strong><br>
+        ・APIキーは他人に教えないようにしてください。<br>
+        ・無料プランの範囲内であれば料金はかかりません。<br>
+        ・ブラウザを閉じると入力内容はリセットされます（セキュリティのため保存されません）。
+    </div>
+</div>
+
+</body>
+</html>
