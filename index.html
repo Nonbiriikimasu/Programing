@@ -79,21 +79,32 @@
             background-position: right 10px center;
         }
 
-        /* Accordion */
+        /* Common Accordion Styles */
         .accordion-wrapper {
-            margin-bottom: 25px;
-            border: 1px solid #cce0ff; border-radius: 12px; overflow: hidden; background: #f1f7ff;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .accordion-header {
-            padding: 15px 20px; background: #e8f0fe; color: var(--primary); font-weight: 700;
+            padding: 15px 20px; background: #f8f9fa; color: var(--text-main); font-weight: 700;
             cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-            transition: background 0.2s;
+            transition: background 0.2s; user-select: none;
         }
-        .accordion-header:hover { background: #dce8fd; }
+        .accordion-header:hover { background: #f1f3f4; }
         .accordion-content {
             max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: #fff;
         }
-        .accordion-body { padding: 25px; color: var(--text-main); font-size: 0.95rem; }
+        .accordion-body { padding: 25px; color: var(--text-main); font-size: 0.95rem; border-top: 1px solid #f0f0f0; }
+
+        /* Specific Header Colors */
+        .header-exp { background: #e8f0fe; color: var(--primary); }
+        .header-exp:hover { background: #dce8fd; }
+        
+        .header-feedback { background: #fff8e1; color: #b08800; }
+        .header-feedback:hover { background: #ffecb3; }
+
+        .header-model { background: #e6f4ea; color: var(--success); }
+        .header-model:hover { background: #ceead6; }
 
         .topic-title { font-size: 1.1rem; font-weight: bold; border-bottom: 2px solid var(--primary); padding-bottom: 8px; margin-bottom: 15px; display: inline-block; }
         .topic-subtitle { font-weight: bold; margin-top: 15px; margin-bottom: 5px; color: #444; display: flex; align-items: center; gap: 5px; }
@@ -150,8 +161,6 @@
             border-radius: 12px; border: 2px solid transparent;
             background: #fff;
         }
-        
-        /* 点数に応じた色分け */
         .score-card.high { border-color: var(--success); background-color: #e6f4ea; color: var(--success); }
         .score-card.mid { border-color: var(--warning); background-color: #fef7e0; color: #b08800; }
         .score-card.low { border-color: var(--danger); background-color: #fce8e6; color: var(--danger); }
@@ -160,14 +169,11 @@
         .score-value { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 10px 0; }
         .score-max { font-size: 1.5rem; opacity: 0.6; font-weight: 600; }
 
-        .feedback-card { background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 30px; margin-bottom: 20px; }
-        .fb-title { font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        
-        /* フィードバック本文のスタイル調整 */
+        /* Feedback Content Styles */
         .fb-content { line-height: 1.8; font-size: 0.95rem; }
         .fb-content ul { padding-left: 20px; margin: 10px 0; }
         .fb-content li { margin-bottom: 5px; }
-        .fb-content strong { color: var(--text-main); background: linear-gradient(transparent 60%, #fff176 60%); }
+        .fb-content strong { background: linear-gradient(transparent 60%, #fff176 60%); }
 
         pre { background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Roboto Mono', monospace; font-size: 0.9rem; margin: 0; }
 
@@ -179,6 +185,10 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none; }
         .error-msg { color: #d93025; background: #fce8e6; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-top: 10px; display: none; }
+        
+        .retry-note {
+            text-align: center; font-size: 0.85rem; color: var(--text-sub); margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -230,14 +240,14 @@
         </div>
 
         <div class="accordion-wrapper">
-            <div class="accordion-header" onclick="toggleAccordion()">
+            <div class="accordion-header header-exp" onclick="toggleAccordion('exp-content', 'exp-icon')">
                 <span style="display:flex; align-items:center; gap:8px;">
                     <span class="material-icons-round">lightbulb</span>
                     <span id="exp-header-text">1. プログラムの基礎 のポイント</span>
                 </span>
-                <span class="material-icons-round" id="accordion-icon">expand_more</span>
+                <span class="material-icons-round" id="exp-icon">expand_more</span>
             </div>
-            <div class="accordion-content" id="accordion-content">
+            <div class="accordion-content" id="exp-content">
                 <div class="accordion-body" id="exp-body"></div>
             </div>
         </div>
@@ -279,6 +289,7 @@ int main(void) {
                 <span>提出して採点</span>
                 <div class="loader" id="loader-submit"></div>
             </button>
+            <div class="retry-note">※ コードを修正して何度でも再提出できます</div>
         </div>
     </div>
 
@@ -292,20 +303,32 @@ int main(void) {
             </div>
         </div>
 
-        <div class="feedback-card">
-            <div class="fb-title">
-                <span class="material-icons-round" style="color:#fbbc04;">lightbulb</span> 
-                AIからのアドバイス
+        <div class="accordion-wrapper">
+            <div class="accordion-header header-feedback" onclick="toggleAccordion('fb-content', 'fb-icon')">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:#f9a825;">lightbulb</span>
+                    <span>AIからのフィードバック</span>
+                </span>
+                <span class="material-icons-round" id="fb-icon">expand_more</span>
             </div>
-            <div id="res-feedback" class="fb-content"></div>
+            <div class="accordion-content" id="fb-content">
+                <div class="accordion-body fb-content" id="res-feedback"></div>
+            </div>
         </div>
 
-        <div class="feedback-card">
-            <div class="fb-title">
-                <span class="material-icons-round" style="color:#34a853;">code</span> 
-                模範解答例
+        <div class="accordion-wrapper">
+            <div class="accordion-header header-model" onclick="toggleAccordion('model-content', 'model-icon')">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:#34a853;">code</span>
+                    <span>模範解答例を表示</span>
+                </span>
+                <span class="material-icons-round" id="model-icon">expand_more</span>
             </div>
-            <div id="res-model-code"></div>
+            <div class="accordion-content" id="model-content">
+                <div class="accordion-body" style="padding:0;">
+                    <div id="res-model-code"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -344,22 +367,20 @@ int main(void) {
         "topic8": `【単元8: ポインタ】 - 必須: アドレス, 参照渡し - 演習: swap関数, 配列操作`
     };
 
+    // --- UI Logic ---
     function updateExplanation() {
         const genre = document.getElementById('genre').value;
         const select = document.getElementById('genre');
         const text = select.options[select.selectedIndex].text;
         document.getElementById('exp-header-text').innerText = text + " のポイント";
         document.getElementById('exp-body').innerHTML = topicExplanations[genre];
-        
-        const content = document.getElementById('accordion-content');
-        const icon = document.getElementById('accordion-icon');
-        content.style.maxHeight = content.scrollHeight + "px";
-        icon.style.transform = "rotate(180deg)";
+        openAccordion('exp-content', 'exp-icon');
     }
 
-    function toggleAccordion() {
-        const content = document.getElementById('accordion-content');
-        const icon = document.getElementById('accordion-icon');
+    // 汎用アコーディオン開閉
+    function toggleAccordion(contentId, iconId) {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
         if (content.style.maxHeight) {
             content.style.maxHeight = null;
             icon.style.transform = "rotate(0deg)";
@@ -369,11 +390,22 @@ int main(void) {
         }
     }
 
+    function openAccordion(contentId, iconId) {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
+        content.style.maxHeight = content.scrollHeight + "px";
+        icon.style.transform = "rotate(180deg)";
+    }
+
+    function closeAccordion(contentId, iconId) {
+        const content = document.getElementById(contentId);
+        const icon = document.getElementById(iconId);
+        content.style.maxHeight = null;
+        icon.style.transform = "rotate(0deg)";
+    }
+
     window.onload = function() {
         updateExplanation();
-        const content = document.getElementById('accordion-content');
-        content.style.maxHeight = null;
-        document.getElementById('accordion-icon').style.transform = "rotate(0deg)";
     };
 
     // --- Gemini API Logic ---
@@ -447,6 +479,7 @@ ${diff}
             document.getElementById('q-desc').innerText = json.description;
             if(json.template) document.getElementById('code-editor').value = json.template;
             
+            // 結果エリアを非表示、エディタを表示
             document.getElementById('exercise-section').style.display = 'block';
             document.getElementById('question-area').style.display = 'block';
             document.getElementById('result-area').style.display = 'none';
@@ -476,7 +509,6 @@ ${diff}
             const model = await findWorkingModel(apiKey);
             const contextInfo = courseContext[genreKey];
 
-            // プロンプトでHTML形式での出力を指示
             const prompt = `
 あなたはC言語の採点官です。
 以下の問題に対する学生のコードを評価・添削してください。
@@ -518,10 +550,10 @@ feedbackフィールドには、見出し(<h3>等)、箇条書き(<ul><li>等)�
             document.getElementById('res-score').innerText = score;
             document.getElementById('res-feedback').innerHTML = json.feedback;
             
-            // スコアに応じたデザイン変更
+            // スコアスタイル
             const scoreCard = document.getElementById('score-card');
             const scoreTitle = document.getElementById('score-title');
-            scoreCard.className = 'score-card'; // リセット
+            scoreCard.className = 'score-card'; // Reset
             if (score >= 80) {
                 scoreCard.classList.add('high');
                 scoreTitle.innerHTML = '<span class="material-icons-round">sentiment_satisfied_alt</span> 素晴らしい！';
@@ -533,6 +565,7 @@ feedbackフィールドには、見出し(<h3>等)、箇条書き(<ul><li>等)�
                 scoreTitle.innerHTML = '<span class="material-icons-round">sentiment_dissatisfied</span> 復習しましょう';
             }
 
+            // 模範解答セット（エスケープ）
             const escapedCode = json.corrected_code
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -541,7 +574,13 @@ feedbackフィールドには、見出し(<h3>等)、箇条書き(<ul><li>等)�
                 .replace(/'/g, "&#039;");
             document.getElementById('res-model-code').innerHTML = `<pre>${escapedCode}</pre>`;
 
+            // エリア表示とスクロール
             document.getElementById('result-area').style.display = 'block';
+            
+            // アコーディオン制御：フィードバックは開く、模範解答は閉じる
+            openAccordion('fb-content', 'fb-icon');
+            closeAccordion('model-content', 'model-icon');
+
             document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
 
         } catch (e) {
