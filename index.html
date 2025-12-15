@@ -9,6 +9,9 @@
     <style>
         :root {
             --primary: #1a73e8;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --danger: #ea4335;
             --bg-body: #f8f9fa;
             --bg-card: #ffffff;
             --text-main: #202124;
@@ -141,11 +144,31 @@
 
         /* Result Area */
         #result-area { display: none; margin-top: 30px; animation: fadeIn 0.5s ease; }
-        .score-box { text-align: center; margin-bottom: 20px; }
-        .score-num { font-size: 3.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
-        .score-label { font-size: 1rem; color: var(--text-sub); }
-        .feedback-card { background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 20px; }
-        .fb-title { font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 1.05rem; }
+        
+        .score-card {
+            text-align: center; margin-bottom: 20px; padding: 20px;
+            border-radius: 12px; border: 2px solid transparent;
+            background: #fff;
+        }
+        
+        /* 点数に応じた色分け */
+        .score-card.high { border-color: var(--success); background-color: #e6f4ea; color: var(--success); }
+        .score-card.mid { border-color: var(--warning); background-color: #fef7e0; color: #b08800; }
+        .score-card.low { border-color: var(--danger); background-color: #fce8e6; color: var(--danger); }
+
+        .score-title { font-weight: bold; font-size: 1rem; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .score-value { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 10px 0; }
+        .score-max { font-size: 1.5rem; opacity: 0.6; font-weight: 600; }
+
+        .feedback-card { background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 30px; margin-bottom: 20px; }
+        .fb-title { font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* フィードバック本文のスタイル調整 */
+        .fb-content { line-height: 1.8; font-size: 0.95rem; }
+        .fb-content ul { padding-left: 20px; margin: 10px 0; }
+        .fb-content li { margin-bottom: 5px; }
+        .fb-content strong { color: var(--text-main); background: linear-gradient(transparent 60%, #fff176 60%); }
+
         pre { background: #2d2d2d; color: #ccc; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Roboto Mono', monospace; font-size: 0.9rem; margin: 0; }
 
         .loader {
@@ -215,8 +238,7 @@
                 <span class="material-icons-round" id="accordion-icon">expand_more</span>
             </div>
             <div class="accordion-content" id="accordion-content">
-                <div class="accordion-body" id="exp-body">
-                    </div>
+                <div class="accordion-body" id="exp-body"></div>
             </div>
         </div>
 
@@ -261,9 +283,13 @@ int main(void) {
     </div>
 
     <div id="result-area" class="card">
-        <div class="score-box">
-            <div class="score-label">SCORE</div>
-            <div id="res-score" class="score-num">--</div>
+        <div class="score-card" id="score-card">
+            <div class="score-title" id="score-title">
+                <span class="material-icons-round">analytics</span> 採点結果
+            </div>
+            <div class="score-value">
+                <span id="res-score">--</span><span class="score-max">/ 100</span>
+            </div>
         </div>
 
         <div class="feedback-card">
@@ -271,7 +297,7 @@ int main(void) {
                 <span class="material-icons-round" style="color:#fbbc04;">lightbulb</span> 
                 AIからのアドバイス
             </div>
-            <div id="res-feedback" style="line-height:1.7; white-space: pre-wrap;"></div>
+            <div id="res-feedback" class="fb-content"></div>
         </div>
 
         <div class="feedback-card">
@@ -291,127 +317,37 @@ int main(void) {
             <div class="topic-title">プログラムの基本構造と変数</div>
             <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">menu_book</span> 基本構文</div>
             <p>C言語のプログラムは <code>main</code> 関数から始まります。変数は使用する前に宣言が必要です。</p>
-            <div class="exp-code">
-#include &lt;stdio.h&gt;
-
-int main(void) {
-    int a;       // 整数型変数の宣言
-    a = 10;      // 代入
-    printf("a = %d\\n", a); // 表示 (%dは整数)
-    return 0;
-}
-            </div>
+            <div class="exp-code">#include &lt;stdio.h&gt;\n\nint main(void) {\n    int a;       // 整数型変数の宣言\n    a = 10;      // 代入\n    printf("a = %d\\n", a); // 表示\n    return 0;\n}</div>
             <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">calculate</span> 計算と型</div>
             <ul class="exp-list">
                 <li><strong>int</strong>: 整数。割り算 <code>5/2</code> は <code>2</code> (切り捨て) になるので注意。</li>
                 <li><strong>float</strong>: 実数。入出力には <code>%f</code> を使う。</li>
                 <li><strong>scanf</strong>: 入力には <code>&</code> が必要。例: <code>scanf("%d", &a);</code></li>
-            </ul>
-        `,
-        "topic2": `
-            <div class="topic-title">条件分岐 (if / switch)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">call_split</span> if文</div>
-            <p>条件が真(非0)か偽(0)かで処理を分けます。</p>
-            <div class="exp-code">
-if (score >= 60) {
-    printf("合格\\n");
-} else {
-    printf("不合格\\n");
-}
-            </div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">list</span> switch文</div>
-            <p>変数の値による多分岐。<code>break</code> を忘れると下のcaseも実行されます。</p>
-        `,
-        "topic3": `
-            <div class="topic-title">繰り返し処理 (Loop)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">loop</span> for文</div>
-            <p>回数が決まっている繰り返しに適しています。</p>
-            <div class="exp-code">
-for (int i = 0; i < 10; i++) {
-    printf("%d ", i);
-}
-            </div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">refresh</span> while文</div>
-            <p>条件が満たされている間繰り返します。無限ループに注意しましょう。</p>
-        `,
-        "topic4": `
-            <div class="topic-title">関数 (Function)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">extension</span> 関数の定義</div>
-            <p>処理を部品化します。<code>main</code> 関数の前で定義するか、プロトタイプ宣言が必要です。</p>
-            <div class="exp-code">
-// 引数xを受け取り、2倍にして返す関数
-int double_num(int x) {
-    return x * 2;
-}
-            </div>
-            <p><strong>値渡し:</strong> 引数の「値」だけがコピーされます（元の変数は変わらない）。</p>
-        `,
-        "topic5": `
-            <div class="topic-title">再帰関数 (Recursion)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">repeat</span> 再帰の仕組み</div>
-            <p>自分自身を呼び出す関数です。「終了条件（ベースケース）」がないと止まりません。</p>
-            <div class="exp-code">
-int fact(int n) {
-    if (n == 0) return 1; // 終了条件
-    return n * fact(n - 1); // 再帰呼び出し
-}
-            </div>
-        `,
-        "topic6": `
-            <div class="topic-title">配列 (Array)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">view_column</span> 配列の基礎</div>
-            <p>同じ型のデータを並べたもの。添字は <strong>0</strong> から始まります。</p>
-            <div class="exp-code">
-int a[5]; // a[0] 〜 a[4] が使える
-a[0] = 10;
-            </div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">grid_on</span> 2次元配列</div>
-            <p><code>int mat[3][3];</code> のように宣言し、行列などを表現できます。</p>
-        `,
-        "topic7": `
-            <div class="topic-title">文字と文字列</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">text_fields</span> 文字列の正体</div>
-            <p>C言語に「文字列型」はなく、<code>char</code>型の配列を使います。末尾には必ず<strong>終端文字 <code>\\0</code></strong> が入ります。</p>
-            <div class="exp-code">
-char s[10] = "Hello";
-// s[0]='H', s[1]='e', ..., s[5]='\\0'
-            </div>
-            <p><code>scanf</code> で文字列を入力する場合、<code>&</code> は不要です。</p>
-        `,
-        "topic8": `
-            <div class="topic-title">ポインタ (Pointer)</div>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">place</span> アドレスとは</div>
-            <p>メモリ上の場所を示す番号です。<code>&a</code> で変数 <code>a</code> のアドレスを取得できます。</p>
-            <div class="topic-subtitle"><span class="material-icons-round" style="font-size:18px;">compare_arrows</span> ポインタ変数</div>
-            <p>アドレスを格納する変数です。関数内で呼び出し元の変数を変更したい場合などに使います（参照渡し）。</p>
-            <div class="exp-code">
-void swap(int *x, int *y) {
-    int tmp = *x; // アドレスの指す「値」を取得
-    *x = *y;
-    *y = tmp;
-}
-            </div>
-        `
+            </ul>`,
+        "topic2": `<div class="topic-title">条件分岐</div><p>if文やswitch文を使って処理を分けます。switch文では <code>break</code> を忘れないように。</p>`,
+        "topic3": `<div class="topic-title">繰り返し処理</div><p>回数が決まっているなら <code>for</code>、条件で繰り返すなら <code>while</code> を使います。</p>`,
+        "topic4": `<div class="topic-title">関数</div><p>処理を部品化します。プロトタイプ宣言を忘れずに。</p>`,
+        "topic5": `<div class="topic-title">再帰関数</div><p>関数内で自分自身を呼び出します。必ず終了条件（ベースケース）が必要です。</p>`,
+        "topic6": `<div class="topic-title">配列</div><p>同じ型のデータをまとめて扱います。添字は0から始まります。</p>`,
+        "topic7": `<div class="topic-title">文字と文字列</div><p>文字列は <code>char</code> 型の配列です。末尾には <code>\\0</code> が入ります。</p>`,
+        "topic8": `<div class="topic-title">ポインタ</div><p>変数のアドレスを扱います。<code>&a</code> でアドレス取得、<code>*p</code> で中身を参照します。</p>`
     };
 
-    // --- コース情報 ---
     const courseContext = {
-        "topic1": `【単元1: 変数と計算】(課題2 範囲) - 必須要素: int, float, printf, scanf, 四則演算, 剰余(%) - 演習傾向: 整数の総和, 積, 絶対値, 3桁の整数の桁分解, 三角形の成立条件. - 注意点: 整数同士の割り算は切り捨て. scanfには&が必要.`,
-        "topic2": `【単元2: 条件分岐】(課題2 範囲) - 必須要素: if, else if, else, switch, case, break - 演習傾向: 正負の判定, 解の個数(2次方程式), 月の英語名表示(switch). - 注意点: switch文のbreak忘れ.`,
-        "topic3": `【単元3: 繰り返し】(課題2 範囲) - 必須要素: for, while, do-while - 演習傾向: 1からNまでの和, 階乗計算, 九九の表, 入力値チェック. - 注意点: 無限ループ回避.`,
-        "topic4": `【単元4: 関数】(課題3 範囲) - 必須要素: 関数定義, 引数, 戻り値, プロトタイプ宣言 - 演習傾向: 階乗(kaijo), 組み合わせ(combination), 累乗(pow), 三角関数近似. - 注意点: main関数より前で宣言するかプロトタイプ宣言が必要.`,
-        "topic5": `【単元5: 再帰関数】(課題4 範囲) - 必須要素: 再帰呼び出し, 終了条件 - 演習傾向: 階乗, フィボナッチ数列, ハノイの塔. - 注意点: 終了条件がないとスタックオーバーフロー.`,
-        "topic6": `【単元6: 配列】(課題5, 6 範囲) - 必須要素: 配列宣言(int a[10]), 2次元配列, ソート - 演習傾向: 最大・最小・平均の算出, 逆順表示, バブルソート, 行列の和・積. - 注意点: 配列の添字は0から.`,
-        "topic7": `【単元7: 文字と文字列】(課題8 範囲) - 必須要素: char配列, 文字列(終端文字), string.h - 演習傾向: 回文判定, 文字列の連結, 特定文字の検索. - 注意点: scanf("%s", s)には&をつけない.`,
-        "topic8": `【単元8: ポインタ】(課題9, 10 範囲) - 必須要素: アドレス(&), ポインタ変数(*p), 間接参照(*) - 演習傾向: 変数の値を入れ替える(swap), 配列をポインタで操作. - 注意点: ポインタの型と変数の型を合わせる.`
+        "topic1": `【単元1: 変数と計算】 - 必須: int, float, printf, scanf, 四則演算 - 演習: 総和, 積, 剰余`,
+        "topic2": `【単元2: 条件分岐】 - 必須: if, switch - 演習: 正負判定, 解の個数`,
+        "topic3": `【単元3: 繰り返し】 - 必須: for, while - 演習: 1からNの和, 九九, 入力チェック`,
+        "topic4": `【単元4: 関数】 - 必須: 関数定義, 引数 - 演習: 階乗, 累乗, 組み合わせ`,
+        "topic5": `【単元5: 再帰関数】 - 必須: 再帰呼び出し - 演習: 階乗, フィボナッチ, ハノイ`,
+        "topic6": `【単元6: 配列】 - 必須: 配列, 2次元配列 - 演習: 最大最小, ソート, 行列`,
+        "topic7": `【単元7: 文字と文字列】 - 必須: char配列, 文字列操作 - 演習: 回文, 連結, 検索`,
+        "topic8": `【単元8: ポインタ】 - 必須: アドレス, 参照渡し - 演習: swap関数, 配列操作`
     };
 
-    // --- UI操作 ---
     function updateExplanation() {
         const genre = document.getElementById('genre').value;
         const select = document.getElementById('genre');
         const text = select.options[select.selectedIndex].text;
-        
         document.getElementById('exp-header-text').innerText = text + " のポイント";
         document.getElementById('exp-body').innerHTML = topicExplanations[genre];
         
@@ -490,8 +426,8 @@ ${diff}
 以下のJSON形式のみを出力してください（Markdown記法は不要）。
 {
   "title": "問題のタイトル",
-  "description": "問題文。何を実装すべきか具体的に。入力例と出力例も含めてください。",
-  "template": "初期コード（#include <stdio.h> int main(void){ ... } 程度。必要なら関数の枠組みだけ書く）"
+  "description": "問題文。実装内容、入力例、出力例を具体的に記述してください。",
+  "template": "初期コード（#include <stdio.h> int main(void){ ... } 程度）"
 }`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -540,6 +476,7 @@ ${diff}
             const model = await findWorkingModel(apiKey);
             const contextInfo = courseContext[genreKey];
 
+            // プロンプトでHTML形式での出力を指示
             const prompt = `
 あなたはC言語の採点官です。
 以下の問題に対する学生のコードを評価・添削してください。
@@ -554,16 +491,12 @@ ${problemDesc}
 【提出コード】
 ${userCode}
 
-【採点基準】
-1. コンパイルエラーがないか
-2. 要件を満たしているか
-3. 講義の範囲に適した書き方か
-
 【出力フォーマット】
 以下のJSON形式のみを出力してください（Markdown不要）。
+feedbackフィールドには、見出し(<h3>等)、箇条書き(<ul><li>等)、太字(<b>)などのHTMLタグを使って、視覚的にわかりやすく記述してください。
 {
   "score": 点数(0-100の整数),
-  "feedback": "具体的な修正点、良かった点、コンパイルエラーの解説など（日本語で）",
+  "feedback": "<h3>判定</h3>... <h3>良かった点</h3><ul><li>...</li></ul> <h3>改善点・解説</h3><ul><li>...</li></ul>",
   "corrected_code": "模範解答または修正後のコード（C言語）"
 }`;
 
@@ -580,9 +513,26 @@ ${userCode}
             const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
             const json = JSON.parse(text);
 
-            document.getElementById('res-score').innerText = json.score;
-            document.getElementById('res-feedback').innerText = json.feedback;
+            // 結果の反映
+            const score = json.score;
+            document.getElementById('res-score').innerText = score;
+            document.getElementById('res-feedback').innerHTML = json.feedback;
             
+            // スコアに応じたデザイン変更
+            const scoreCard = document.getElementById('score-card');
+            const scoreTitle = document.getElementById('score-title');
+            scoreCard.className = 'score-card'; // リセット
+            if (score >= 80) {
+                scoreCard.classList.add('high');
+                scoreTitle.innerHTML = '<span class="material-icons-round">sentiment_satisfied_alt</span> 素晴らしい！';
+            } else if (score >= 50) {
+                scoreCard.classList.add('mid');
+                scoreTitle.innerHTML = '<span class="material-icons-round">sentiment_neutral</span> おしい！あと少し';
+            } else {
+                scoreCard.classList.add('low');
+                scoreTitle.innerHTML = '<span class="material-icons-round">sentiment_dissatisfied</span> 復習しましょう';
+            }
+
             const escapedCode = json.corrected_code
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
